@@ -4,6 +4,7 @@ framework:
         # failure_transport: failed
 
         transports:
+            processing: '%env(PROCESSING_TRANSPORT_DSN)%'
             # https://symfony.com/doc/current/messenger.html#transport-configuration
             # async: '%env(MESSENGER_TRANSPORT_DSN)%'
             # failed: 'doctrine://default?queue_name=failed'
@@ -13,10 +14,11 @@ framework:
             # Route your messages to the transports
             # 'App\Message\YourMessage': async
 
-# when@test:
-#    framework:
-#        messenger:
-#            transports:
+when@test:
+    framework:
+        messenger:
+            transports:
 #                # replace with your transport name here (e.g., my_transport: 'in-memory://')
 #                # For more Messenger testing tools, see https://github.com/zenstruck/messenger-test
 #                async: 'in-memory://'
+            processing: 'in-memory://'

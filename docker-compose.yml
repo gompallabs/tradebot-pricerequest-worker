@@ -1,0 +1,25 @@
+version: "3.4"
+services:
+
+  app_price_request_worker:
+    container_name: app_price_request_worker
+    restart: unless-stopped
+    build:
+      context: .
+      target: app_php
+      args:
+        - APP_ENV=dev
+        - APP_DIR=.
+        - PHP_CONF_DIR=./.docker/php
+        - ENTRYPOINT_FILE=docker-entrypoint.sh
+        - GID=1000
+        - UID=1000
+        - INSTALL_DIR=app
+        - PHP_VERSION=8.2
+        - TZ=Europe/Paris
+    networks:
+      - tradebot
+
+networks:
+  tradebot:
+    external: true
