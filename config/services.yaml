@@ -4,12 +4,16 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    downloadDir: 'var/data/download'
+    redisHost: '%env(string:REDIS_HOST)%'
 
 services:
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            $downloadDir: '%downloadDir%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -22,3 +26,27 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    # Redis and TimeSeries adapters
+    timeseries_factory:
+        class: 'App\Infra\Store\Adapter\RedisTimeSeries\Factory\RedisTimeSeriesFactory'
+        arguments:
+            - '%redisHost%'
+            - '6379'
+
+    App\Infra\Store\Adapter\RedisTimeSeries\TimeSeries:
+        class: App\Infra\Store\Adapter\RedisTimeSeries\TimeSeries
+        factory: ['@timeseries_factory', 'getClient']
+
+    # this config only applies to the services created by this file
+    _instanceof:
+        App\Domain\SampleData\SampleChecker:
+            tags: ['app.sample_checker']
+        App\Domain\SampleData\SampleDataMapper:
+            tags: ['app.sample_data_mapper']
+
+    App\Infra\SampleData\SampleCheckerRegistry:
+        - arguments: [!tagged_iterator { tag: 'app.sample_checker'}]
+
+    App\Infra\SampleData\SampleDataMapperRegistry:
+        - arguments: [!tagged_iterator { tag: 'app.sample_data_mapper'}]

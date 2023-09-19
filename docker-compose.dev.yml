@@ -16,6 +16,7 @@ services:
       - ".:/srv/app:rw"
       - "./var/log:/srv/app/var/log:rw"
       - "./var/data:/srv/app/var/data:rw"
+      - "./var/data/download:/srv/app/var/data/download:rw"
       - "./.docker/php/conf.d/symfony.dev.ini:/usr/local/etc/php/conf.d/symfony.ini:ro"
     networks:
       - tradebot

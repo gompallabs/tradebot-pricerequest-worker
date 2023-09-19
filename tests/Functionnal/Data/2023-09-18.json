@@ -1,0 +1,14 @@
+{
+  "exchangeName": "Bybit",
+  "coin": {
+    "ticker": "BTCUSDT",
+    "category": "spot"
+  },
+  "files": [
+    {
+      "name": "BTCUSDT2023-09-18.csv.gz",
+      "extension": "gz",
+      "path": "\/srv\/app\/var\/data\/download"
+    }
+  ]
+}

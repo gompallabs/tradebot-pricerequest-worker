@@ -31,4 +31,22 @@ final class File
     {
         return $this->path;
     }
+
+    public function toArray(): array
+    {
+        return [
+            'name' => $this->getName(),
+            'extension' => $this->getExtension(),
+            'path' => $this->getPath(),
+        ];
+    }
+
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            name: $data['name'],
+            extension: $data['extension'],
+            path: $data['path']
+        );
+    }
 }
