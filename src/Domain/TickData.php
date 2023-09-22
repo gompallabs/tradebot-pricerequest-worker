@@ -22,4 +22,9 @@ class TickData
     {
         return $this->data->count();
     }
+
+    public function getIterator(): \ArrayIterator
+    {
+        return $this->data;
+    }
 }

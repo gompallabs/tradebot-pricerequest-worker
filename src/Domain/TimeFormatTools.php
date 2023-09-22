@@ -29,20 +29,29 @@ class TimeFormatTools
         throw new \Exception('Missing case at '.__CLASS__);
     }
 
-    public static function scale(int|float $start, int|float $end, TimeFormat $timeFormat, ?int $stepSize = 1): \ArrayIterator
+    /**
+     * Result depends on timeformat and must be expressed in same format.
+     */
+    public static function scale(int|float $start, int|float $end, TimeFormat $timeFormat, ?int $stepSize = 1): array
     {
         $start = match ($timeFormat->value) {
-            'DotMilliseconds' => (int) floor($start),
-            'IntMilliseconds' => (int) floor($start / 1000),
-            'Seconds' => $start,
+            'DotMilliseconds', 'Seconds' => floor($start),
+            'IntMilliseconds' => floor($start / 1000) * 1000,
         };
-
         $end = match ($timeFormat->value) {
-            'DotMilliseconds' => (int) ceil($end),
-            'IntMilliseconds' => (int) ceil($end / 1000),
-            'Seconds' => $end,
+            'DotMilliseconds', 'Seconds' => floor($end),
+            'IntMilliseconds' => floor($end / 1000) * 1000,
         };
 
-        return new \ArrayIterator(range($start, $end, $stepSize));
+        $step = $stepSize * match ($timeFormat->value) {
+            'DotMilliseconds', 'Seconds' => 1,
+            'IntMilliseconds' => 1000,
+        };
+
+        return [new \ArrayIterator(range(
+            start: (int) $start,
+            end: (int) $end,
+            step: (int) $step
+        )), $step];
     }
 }

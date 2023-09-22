@@ -102,6 +102,11 @@ final class PriceOhlcv
         return $this->tsms;
     }
 
+    public function setTsms(int $tsms): void
+    {
+        $this->tsms = $tsms;
+    }
+
     public function getTotalVolume(): float
     {
         return $this->buyVolume + $this->sellVolume;

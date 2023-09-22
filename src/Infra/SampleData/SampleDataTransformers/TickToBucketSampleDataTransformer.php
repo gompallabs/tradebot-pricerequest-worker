@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Infra\SampleData\SampleDataTransformers;
 
+use _PHPStan_95cdbe577\Symfony\Component\Console\Exception\LogicException;
 use App\Domain\SampleData\SampleDataTransformerInterface;
 use App\Domain\Source\Source;
 use App\Domain\TimeFormat;
@@ -20,31 +21,48 @@ class TickToBucketSampleDataTransformer implements SampleDataTransformerInterfac
     }
 
     /**
-     * Read entire dataset only once.
+     * Group By buckets representing one timeframe (ex: 1 second).
      */
     public function transform(Source $source, \ArrayIterator $tickData): \ArrayIterator
     {
+        $tickData->rewind();
         $start = $tickData->offsetGet(0);
         $end = $tickData->offsetGet($tickData->count() - 1);
-        $tsScale = TimeFormatTools::scale(
+
+        [$tsScale, $step] = TimeFormatTools::scale(
             start: $start[0],
             end: $end[0],
             timeFormat: $this->timeFormat,
             stepSize: $this->timeFrame
         );
 
+        $multiplicator = match ($this->timeFormat->value) {
+            'DotMilliseconds', 'Seconds' => 1000,
+            'IntMilliseconds' => 1,
+            'default' => throw new LogicException('Missing case '.$this->timeFormat->value)
+        };
+
         $ohclv = new \ArrayIterator();
-        foreach ($tsScale as $timeStep) {
+        $n = count($tsScale);
+
+        for ($i = 0; $i < $n; ++$i) {
             $bucket = new \ArrayIterator();
-            while ($tickData->valid() && $tickData->current()[0] < $timeStep + 1) {
+            $timeStep = $tsScale[$i];
+            while ($tickData->valid() && $tickData->current()[0] < $timeStep + $step) {
                 $bucket->append($tickData->current());
                 $tickData->next();
             }
+
             if ($bucket->count() > 0) {
                 $result = $this->nextTransformer->transform(source: $source, tickData: $bucket);
-                $ohclv->append($result->current()); // subsequent handlers return one result per bucket
+                $bucketTsms = (int) ($multiplicator * $timeStep);
+                $priceOhlcv = $result->current();
+                $priceOhlcv->setTsms($bucketTsms);
+                $ohclv->append($priceOhlcv);
             }
         }
+
+        $ohclv->rewind();
 
         return $ohclv;
     }

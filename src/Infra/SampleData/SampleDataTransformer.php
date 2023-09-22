@@ -13,7 +13,6 @@ use App\Infra\SampleData\SampleDataTransformers\ChronoSortSampleDataTransformer;
 use App\Infra\SampleData\SampleDataTransformers\ColumnFilterSampleDataTransformer;
 use App\Infra\SampleData\SampleDataTransformers\OhlcSampleDataTransformer;
 use App\Infra\SampleData\SampleDataTransformers\TickToBucketSampleDataTransformer;
-use App\Infra\SampleData\SampleDataTransformers\VolumeSampleDataTransformer;
 
 class SampleDataTransformer implements TickDataTransformerInterface
 {
@@ -37,8 +36,7 @@ class SampleDataTransformer implements TickDataTransformerInterface
                 timeFormat: $this->timeFormat,
                 timeFrame: $timeFrame
             ))
-            ->setNext(new OhlcSampleDataTransformer())
-            ->setNext(new VolumeSampleDataTransformer());
+            ->setNext(new OhlcSampleDataTransformer($this->timeFormat));
 
         return new TickData($transformer->transform(source: $source, tickData: new \ArrayIterator($payload)));
     }

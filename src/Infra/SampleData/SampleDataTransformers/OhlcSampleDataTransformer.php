@@ -7,15 +7,23 @@ namespace App\Infra\SampleData\SampleDataTransformers;
 use App\Domain\PriceOhlcv;
 use App\Domain\SampleData\SampleDataTransformerInterface;
 use App\Domain\Source\Source;
+use App\Domain\TimeFormat;
 
 class OhlcSampleDataTransformer implements SampleDataTransformerInterface
 {
+    private TimeFormat $timeFormat;
+
+    public function __construct(TimeFormat $timeFormat)
+    {
+        $this->timeFormat = $timeFormat;
+    }
+
     private ?SampleDataTransformerInterface $nextTransformer = null;
 
     public function transform(Source $source, \ArrayIterator $tickData): \ArrayIterator
     {
         $current = $tickData->current();
-        $tsms = (int) (floor($current[0]) * 1000);
+        $tsms = (int) (floor($current[0]) * 1000); // here is the problem
         $candleData = new \ArrayIterator();
 
         $ohclv = new PriceOhlcv($tsms, $current[2]);

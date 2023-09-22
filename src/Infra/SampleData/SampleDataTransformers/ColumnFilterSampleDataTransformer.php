@@ -8,6 +8,9 @@ use App\Domain\SampleData\SampleDataMapper;
 use App\Domain\SampleData\SampleDataTransformerInterface;
 use App\Domain\Source\Source;
 
+/**
+ * Select only fields we need.
+ */
 class ColumnFilterSampleDataTransformer implements SampleDataTransformerInterface
 {
     private ?SampleDataTransformerInterface $nextTransformer = null;
@@ -25,6 +28,7 @@ class ColumnFilterSampleDataTransformer implements SampleDataTransformerInterfac
             $newSample = $this->dataMapper->mapToTs(source: $source, sample: $sample);
             $newIterator->append($newSample);
         }
+
         if (null !== $this->nextTransformer) {
             return $this->nextTransformer->transform(source: $source, tickData: $newIterator);
         }
