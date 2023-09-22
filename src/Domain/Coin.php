@@ -32,4 +32,12 @@ final class Coin
             'category' => $this->getCategory(),
         ];
     }
+
+    public static function fromArray(array $data): Coin
+    {
+        return new self(
+            ticker: $data['ticker'],
+            category: $data['category']
+        );
+    }
 }

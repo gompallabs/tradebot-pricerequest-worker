@@ -2,6 +2,8 @@ framework:
     messenger:
         # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
         # failure_transport: failed
+        buses:
+            event.bus:
 
         transports:
             processing: '%env(PROCESSING_TRANSPORT_DSN)%'
@@ -21,4 +23,4 @@ when@test:
 #                # replace with your transport name here (e.g., my_transport: 'in-memory://')
 #                # For more Messenger testing tools, see https://github.com/zenstruck/messenger-test
 #                async: 'in-memory://'
-            processing: 'in-memory://'
+                processing: 'in-memory://'

@@ -5,30 +5,31 @@ declare(strict_types=1);
 namespace App\App\Event;
 
 use App\Domain\Coin;
-use App\Domain\Source\Exchange;
+use App\Domain\File;
+use App\Domain\Source\Source;
 
 class FileDownloadedEvent
 {
-    private string $exchangeName;
-    private array $coin;
+    private Source $source;
+    private Coin $coin;
     private array $files;
 
     public function __construct(
-        Exchange $exchange,
+        Source $source,
         Coin $coin,
         array $downloadedFiles
     ) {
-        $this->exchangeName = $exchange->value;
-        $this->coin = $coin->toArray();
+        $this->source = $source;
+        $this->coin = $coin;
         $this->files = $downloadedFiles;
     }
 
-    public function getExchangeName(): string
+    public function getSource(): Source
     {
-        return $this->exchangeName;
+        return $this->source;
     }
 
-    public function getCoin(): array
+    public function getCoin(): Coin
     {
         return $this->coin;
     }
@@ -36,5 +37,16 @@ class FileDownloadedEvent
     public function getFiles(): array
     {
         return $this->files;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'source' => $this->getSource()->toArray(),
+            'coin' => $this->getCoin()->toArray(),
+            'files' => array_map(function (File $file) {
+                return $file->toArray();
+            }, $this->getFiles()),
+        ];
     }
 }
